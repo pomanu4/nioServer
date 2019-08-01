@@ -48,7 +48,7 @@ public class NioSocetOperations {
         
         Selector selector = Selector.open();
         ServerSocketChannel serverSocChanel = ServerSocketChannel.open();
-        InetSocketAddress address = new InetSocketAddress("127.0.0.1", 35999);
+        InetSocketAddress address = new InetSocketAddress(35999);
         serverSocChanel.bind(address);
         serverSocChanel.configureBlocking(false);
         int num = serverSocChanel.validOps();//return only one valid option OP_Accept (16)
