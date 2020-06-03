@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
 import java.nio.channels.Channels;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public class NioSocetOperations {
+public class NioSocketOperations {
 
     public static void main(String... args) throws IOException {
         /*
@@ -45,9 +46,8 @@ public class NioSocetOperations {
             System.out.println(s);
         }
          */
+        try(Selector selector = Selector.open(); ServerSocketChannel serverSocChanel = ServerSocketChannel.open()){
         
-        Selector selector = Selector.open();
-        ServerSocketChannel serverSocChanel = ServerSocketChannel.open();
         InetSocketAddress address = new InetSocketAddress(35999);
         serverSocChanel.bind(address);
         serverSocChanel.configureBlocking(false);
@@ -59,7 +59,7 @@ public class NioSocetOperations {
             Set<SelectionKey> keys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = keys.iterator();
             while (iterator.hasNext()) {
-                SelectionKey actionKey = iterator.next();               
+                SelectionKey actionKey = iterator.next(); 
                 if (actionKey.isAcceptable()) {
                     SocketChannel clientChannel = serverSocChanel.accept();
                     clientChannel.configureBlocking(false);
@@ -91,6 +91,7 @@ public class NioSocetOperations {
                 }
                 iterator.remove();
             }
+        }
         }
 
     }
