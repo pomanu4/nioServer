@@ -53,6 +53,7 @@ public class NioSocketOperations {
         serverSocChanel.configureBlocking(false);
         int num = serverSocChanel.validOps();//return only one valid option OP_Accept (16)
         serverSocChanel.register(selector, num, null);
+        Object chanelInfo = new Object(); /// create object to store info  about chanel
         while (true) {
             System.out.println("server are waiting for connection ");
             selector.select();
@@ -63,16 +64,17 @@ public class NioSocketOperations {
                 if (actionKey.isAcceptable()) {
                     SocketChannel clientChannel = serverSocChanel.accept();
                     clientChannel.configureBlocking(false);
-                    clientChannel.register(selector, SelectionKey.OP_READ);
+                    clientChannel.register(selector, SelectionKey.OP_READ, chanelInfo);
                     
                     System.out.println("connection is accepted " + clientChannel.getLocalAddress().toString());
                 } else if (actionKey.isReadable()) {
                     SocketChannel clientChannel = (SocketChannel) actionKey.channel();
+                    chanelInfo = actionKey.attachment(); /// get  object attached to key
                     ByteBuffer buffer = ByteBuffer.allocate(1024);
                     clientChannel.read(buffer);
                     String request = new String(buffer.array()).trim();
                     System.out.println("browser request is : \n\n" + request);
-                    clientChannel.register(selector, SelectionKey.OP_WRITE);
+                    clientChannel.register(selector, SelectionKey.OP_WRITE, chanelInfo);
                     
                     
 //                    actionKey.cancel();
