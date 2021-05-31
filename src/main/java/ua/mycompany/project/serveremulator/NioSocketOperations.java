@@ -55,7 +55,7 @@ public class NioSocketOperations {
         serverSocChanel.register(selector, num, null);
         Object chanelInfo = new Object(); /// create object to store info  about chanel
         while (true) {
-            System.out.println("server are waiting for connection ");
+            System.out.println("server are waiting for connection .....");
             selector.select();
             Set<SelectionKey> keys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = keys.iterator();
