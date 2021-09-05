@@ -1,0 +1,60 @@
+version : '3.7'
+services:
+    srv :
+        build : 
+            #network: host
+            context : .
+            dockerfile : Dockerfile
+        ports:
+            - "29888:29888"
+        volumes:
+           - D:\Docker\logs:/tmp/logs
+           - D:\Docker\logs\dump:/tmp/logs/dump
+        environment:
+            - logerAnchor=test_docker_log_anchor
+            - h2_db_url=jdbc:h2:tcp://h2_db_1:9092/docker 
+            - TZ=Europe/Kiev
+            #- h2_db_url=jdbc:h2:tcp://10.10.10.2:9092/docker
+        #env_file:
+          #  - env/vars.env
+ #==========to cinnect between  seperete containers ========================       
+networks:
+  default:
+    external: true
+    name: dockerdb_default            
+            
+  #============ when use in one file =======================================          
+        #depends_on:
+            #- "h2_db_1"    
+            
+    #h2_db_1 :
+        #image: buildo/h2database
+        #container_name: h2_db_test
+        #ports:
+            #- "8082:8082"
+            #- "9092:9092"
+        #volumes:
+           #- ./h2_db_1/docker.sql:/docker-entrypoint-initdb.d/docker.sql
+           #- ./h2_db_1/base_files:/var/db
+        #environment:
+            #- H2DATA=/var/db
+            
+ #======= if we want set custom  ip for container ==========
+        #networks:
+            #dock_net:
+                #ipv4_address: 10.10.10.2
+#networks:
+    #dock_net:
+        #driver: bridge
+        #ipam:
+            #config:
+               #- subnet: "10.10.10.0/24"
+                 #gateway: 10.10.10.1
+
+#======================================= docker file ====
+#FROM openjdk:8-jre
+
+#COPY ./serverEmulator-1.0-SNAPSHOT.jar ./home
+#COPY ./logConfig ./home
+#CMD ["java", "-Dlog4j2.configurationFile=home/log4j2-test.xml", "-jar", "home/serverEmulator-1.0-SNAPSHOT.jar"]
+

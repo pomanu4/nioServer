@@ -1,0 +1,16 @@
+version : '3.7'
+services:
+    h2_db_1 :
+        #build : .
+            #dockerfile : Dockerfile
+        image: buildo/h2database
+        container_name: h2_db_test_1
+        ports:
+            - "8082:8082"
+            - "9092:9092"
+        volumes:
+           - ./h2_db_1/docker.sql:/docker-entrypoint-initdb.d/docker.sql
+           - ./h2_db_1/base_files:/var/db
+        environment:
+            - H2DATA=/var/db
+           # - logerAnchor=test_docker_log_anchor

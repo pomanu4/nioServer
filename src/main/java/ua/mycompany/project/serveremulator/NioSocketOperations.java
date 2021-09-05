@@ -25,6 +25,8 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class NioSocketOperations {
@@ -46,27 +48,30 @@ public class NioSocketOperations {
             System.out.println(s);
         }
          */
+    	AtomicBoolean needContinue = new AtomicBoolean(true);
         try(Selector selector = Selector.open(); ServerSocketChannel serverSocChanel = ServerSocketChannel.open()){
         
-        InetSocketAddress address = new InetSocketAddress(35999);
-        serverSocChanel.bind(address);
+        InetSocketAddress address = new InetSocketAddress("127.0.0.1", 35999);
+        serverSocChanel.bind(address, 100);
         serverSocChanel.configureBlocking(false);
         int num = serverSocChanel.validOps();//return only one valid option OP_Accept (16)
         serverSocChanel.register(selector, num, null);
         Object chanelInfo = new Object(); /// create object to store info  about chanel
-        while (true) {
+        while (needContinue.get()) {
             System.out.println("server are waiting for connection .....");
-            selector.select();
+            selector.select(10000);
             Set<SelectionKey> keys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = keys.iterator();
             while (iterator.hasNext()) {
                 SelectionKey actionKey = iterator.next(); 
+                iterator.remove();
                 if (actionKey.isAcceptable()) {
                     SocketChannel clientChannel = serverSocChanel.accept();
                     clientChannel.configureBlocking(false);
                     clientChannel.register(selector, SelectionKey.OP_READ, chanelInfo);
                     
                     System.out.println("connection is accepted " + clientChannel.getLocalAddress().toString());
+                    
                 } else if (actionKey.isReadable()) {
                     SocketChannel clientChannel = (SocketChannel) actionKey.channel();
                     chanelInfo = actionKey.attachment(); /// get  object attached to key
@@ -76,7 +81,12 @@ public class NioSocketOperations {
                     System.out.println("browser request is : \n\n" + request);
                     clientChannel.register(selector, SelectionKey.OP_WRITE, chanelInfo);
                     
+//                    if("stop".equals(request)) {
+//                    	needContinue.set(false);
+//                    	System.out.println("receive comand to  stop  server");
+//                    }
                     
+                                     
 //                    actionKey.cancel();
                 } else if (actionKey.isWritable()) {
                     SocketChannel clientChannel = (SocketChannel) actionKey.channel();
@@ -87,27 +97,31 @@ public class NioSocketOperations {
 //                    byte[] cont = Files.readAllBytes(path);
 //                    clientChannel.write(ByteBuffer.wrap(cont));
                     
-//                    actionKey.cancel();
+                    
                     clientChannel.close();
-                    System.out.println("connection is closed");
+                    actionKey.cancel();
+//                    System.out.println("connection is closed");
                 }
-                iterator.remove();
+                
             }
         }
-        }
+        } catch (Exception e) {
+			e.printStackTrace();
+		}
 
     }
 
     private static String createHeaders() {
         StringBuilder builder = new StringBuilder();
-        builder.append("HTTP/1.1 200 ok \r\n")
-//               .append("HTTP/1.1 308 redirect \r\n")
-               .append("Connection: close \r\n")
-               .append("Content-Type: text/html; charset=utf-8 \r\n")
-//               .append("Content-Type: application/octet-stream \r\n")
-//               .append("Content-Disposition: attachment; filename=test.txt")
-               .append("\r\n")
-               .append("<!DOCTYPE html><html><body><h1>hello world</h1><br><p>nio server response</p></body></html>");
+//        builder.append("HTTP/1.1 200 ok \r\n")
+////               .append("HTTP/1.1 308 redirect \r\n")
+//               .append("Connection: close \r\n")
+//               .append("Content-Type: text/html; charset=utf-8 \r\n")
+////               .append("Content-Type: application/octet-stream \r\n")
+////               .append("Content-Disposition: attachment; filename=test.txt")
+//               .append("\r\n")
+//               .append("<!DOCTYPE html><html><body><h1>hello world</h1><br><p>nio server response</p></body></html>");
+        builder.append("hello");
         String response = builder.toString();
 
         return response;

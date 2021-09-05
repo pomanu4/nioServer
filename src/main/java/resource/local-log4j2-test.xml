@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Configuration monitorInterval="30">
+	</Configuration>
+
+	<Properties>
+		<Property name="logDir" value="./logg" />
+		<Property name="dumplogDir" value="./logg/dump" />
+		<Property name="remotelogDir" value="/tmp/logs" />
+		<Property name="remoteDump" value="/tmp/logs/dump" />
+	</Properties>
+
+	<Appenders>
+
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c:%L [%t]- %m%n" />
+		</Console>
+
+		<RollingFile name="rFILE" fileName="${logDir}/regular_logFile.log"
+			filePattern="${dumplogDir}/regular_arch_%d{yyyy_MM_dd}-%i.log.gz">
+			<PatternLayout>
+				<Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p %C:%L [%t] %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<SizeBasedTriggeringPolicy size="100 MB" />
+			</Policies>
+		</RollingFile>
+
+		<Routing name="Routing">
+			<Routes pattern="$${env:fName}">
+
+				<!--  <Route key="special">
+					<RollingFile name="Rolling-${ctx:ROUTINGKEY}"
+						fileName="./logg/${ctx:fName}_logFile.log"
+						filePattern="./logs/${date:yyyy-MM}/${ctx:ROUTINGKEY}-special-%d{yyyy-MM-dd}-%i.log.gz">
+						<PatternLayout>
+							<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p %C:%L [%t] %m%n</pattern>
+						</PatternLayout>
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="6"
+								modulate="true" />
+							<SizeBasedTriggeringPolicy size="10 MB" />
+						</Policies>
+					</RollingFile>
+				</Route>-->
+
+				<Route>
+					<RollingFile name="Rolling-${env:fName}"
+						fileName="${logDir}/${env:fName}_con_logFile.log"
+						filePattern="${dumplogDir}/${env:fName}_arch_%d{yyyy_MM_dd}-%i.log.gz">
+						<PatternLayout>
+							<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p %C:%L [%t] %m%n</pattern>
+						</PatternLayout>
+						<Policies>
+							<TimeBasedTriggeringPolicy interval="1"
+								modulate="true" />
+							<SizeBasedTriggeringPolicy
+								size="100 MB" />
+						</Policies>
+					</RollingFile>
+				</Route> 
+			</Routes>
+		</Routing>
+
+	</Appenders>
+	<Loggers>
+		<Logger name="mainLogger" level="trace"
+			additivity="false">
+			<AppenderRef ref="Routing" />
+		</Logger>
+		<Logger name="ua.mycompany.project" level="trace"
+			additivity="false">
+			<AppenderRef ref="CONSOLE" />
+			<AppenderRef ref="rFILE" />
+		</Logger>
+		<Root level="error">
+			<AppenderRef ref="CONSOLE" />
+		</Root>
+	</Loggers>
+
+
+</Configuration>

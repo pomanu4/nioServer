@@ -39,7 +39,7 @@ public class ThredWorker implements Runnable{
                 writer.flush();
             }
             socket.close();
-           System.out.println(" new thread ends " + name);
+           System.out.println(" thread ends " + name);
         } catch (IOException ex) {
             Logger.getLogger(ThredWorker.class.getName()).log(Level.SEVERE, null, ex);
         }
